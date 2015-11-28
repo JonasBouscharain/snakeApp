@@ -1,0 +1,7 @@
+.cell-used{
+	background-color: black;
+}
+
+.cell-unused{
+	background-color: white;
+}

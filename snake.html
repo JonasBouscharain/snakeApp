@@ -6,8 +6,19 @@
 	<script src="snake.js"></script>
 
 	<link rel="stylesheet" type="text/css" href="style.css">
+	<link rel="stylesheet" type="text/css" href="reset.css">
 </head>
-<body>
-	<p> Hello World ! </p>
+<body ng-app="snakeApp">
+	<div id="main" ng-controller="mainController">
+		<div id="gameBoard" ng-style="windowSize">
+			<table>
+				<tr ng-repeat="line in gameBoard">
+					<td ng-repeat="cell in line.cells" ng-style="line.style">
+						<div ng-class="cell.style"></div>
+					</td>
+				</tr>
+			</table>
+		</div>
+	</div>
 </body>
 </html>
