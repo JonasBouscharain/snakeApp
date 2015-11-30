@@ -1,3 +1,38 @@
+td{
+	position: relative;
+}
+
+.cell-head-eye-sw{
+	background-color: white;
+	bottom: 2px;
+	left: 2px;
+}
+
+.cell-head-eye-se{
+	background-color: white;
+	bottom: 2px;
+	right: 2px;
+}
+
+.cell-head-eye-ne{
+	background-color: white;
+	top: 2px;
+	right: 2px;
+}
+
+.cell-head-eye-nw{
+	background-color: white;
+	top: 2px;
+	left: 2px;
+}
+
+.cell-head{
+	position: absolute;
+	width: 25%;
+	height: 25%;
+	border-radius: 5px;
+}
+
 .cell-used{
 	background-color: black;
 }
@@ -9,4 +44,6 @@
 .cell{
 	width: 100%;
 	height: 100%;
+	border-radius: 10px;
+	transition: background-color 0.1;
 }

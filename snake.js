@@ -23,7 +23,7 @@ app.service('GameBoard', function(){
 					line: countL,
 					col: countC,
 					used: false,
-					style: this.used?"cell-used":"cell-unused"
+					style: "cell-unused"
 				};
 				countC++;
 			}
@@ -37,41 +37,11 @@ app.service('GameBoard', function(){
 			countL++;
 		}
 		return l;
-	},
-	this.moveOne = function(board, line, col, state){
-		
-		board[line].cells[col].used = state;
-		board[line].cells[col].style = state?"cell-used":"cell-unused";
-		console.log(board[line].cells[col].style);
-	},
-	this.moveAll = function(board, snake, direction){
-		last = snake.shift();
-		this.moveOne(board, last.line, last.col, false);
-		//snake.shift();
-
-		line = snake[snake.length-1].line;
-		col = snake[snake.length-1].col;
-		if(direction == "n")
-			line += 1;
-		else if(direction == "s")
-			line -= 1;
-		else if(direction == "e")
-			col += 1;
-		else if(direction == "w")
-			col -= 1;
-		//console.log(line, col);
-		this.moveOne(board, line, col, true);
-		snake.push(board[line].cells[col]);
-	},
-	this.initSnake = function(board, snake){
-		for(i = 0 ; i < snake.length ; i++){
-			this.moveOne(board, snake[i].line, snake[i].col, true);
-		}
 	}
 })
 
 app.controller('mainController', ['$scope', 'GameBoard', '$interval', '$timeout', '$document', function($scope, GameBoard, $interval, $timeout, $document) {
-	$scope.direction = "e";
+	$scope.direction = "n";
 	$scope.windowSize = GameBoard.windowSize();
 	$scope.gameBoard = GameBoard.getGameBoard();
 	$scope.snake = [
@@ -80,16 +50,9 @@ app.controller('mainController', ['$scope', 'GameBoard', '$interval', '$timeout'
 		$scope.gameBoard[10].cells[7],
 		$scope.gameBoard[10].cells[8]
 	];
-	$scope.speed = 100;
+	$scope.speed = 1000;
 	$scope.move = true;
-
-	GameBoard.initSnake($scope.gameBoard, $scope.snake);
-
-	$interval(function(){
-		GameBoard.moveAll($scope.gameBoard, $scope.snake, $scope.direction);
-		$scope.move = true;
-	}, $scope.speed);
-
+	$scope.isPlaying = true;
 	
 	$scope.goTo = function($event){
 		if($scope.move){
@@ -100,8 +63,8 @@ app.controller('mainController', ['$scope', 'GameBoard', '$interval', '$timeout'
 				}
 			}
 			else if($event.keyCode == 38){
-				if($scope.direction != "n"){
-					$scope.direction = "s";
+				if($scope.direction != "s"){
+					$scope.direction = "n";
 					$scope.move = false;
 				}
 			}
@@ -112,8 +75,8 @@ app.controller('mainController', ['$scope', 'GameBoard', '$interval', '$timeout'
 				}
 			}
 			else if($event.keyCode == 40){
-				if($scope.direction != "s"){
-					$scope.direction = "n";
+				if($scope.direction != "n"){
+					$scope.direction = "s";
 					$scope.move = false;
 				}
 			}
@@ -121,4 +84,106 @@ app.controller('mainController', ['$scope', 'GameBoard', '$interval', '$timeout'
 	};
 
 	$document.on('keyup', $scope.goTo);
+
+	$scope.moveOne = function(line, col, state, first){
+		$scope.gameBoard[line].cells[col].used = state;
+		$scope.gameBoard[line].cells[col].style = state?"cell-used":"cell-unused";
+		console.log($scope.direction, first);
+		if(first){
+			$scope.snakeHead(line, col, true);
+		}
+		else{
+			$scope.gameBoard[line].cells[col].head1 = "";
+			$scope.gameBoard[line].cells[col].head2 = "";
+		}
+	};
+
+	/**
+	* Function that move all the snake (remove the last item and add an other)
+	*
+	* @return void
+	*/
+	$scope.moveAll = function(){
+		// Get the actual head of the snake
+		line = $scope.snake[$scope.snake.length-1].line;
+		col = $scope.snake[$scope.snake.length-1].col;
+
+		// Save into tmp var to remove the style
+		lineHead = line;
+		colHead = col;
+			
+		// Move the line/col with the actual direction
+		if($scope.direction == "n")
+			line -= 1;
+		else if($scope.direction == "s")
+			line += 1;
+		else if($scope.direction == "e")
+			col += 1;
+		else if($scope.direction == "w")
+			col -= 1;
+
+		// Inboard verification
+		if(line < 0 || line > $scope.gameBoard.length || col < 0 || col > $scope.gameBoard[0].cells.length){
+			alert ("nop");
+			$scope.isPlaying = false;
+		}
+		else{
+			// Removing the last item of the snake
+			last = $scope.snake.shift();
+			$scope.moveOne(last.line, last.col, false, false);
+
+			// Removing the style of the old head
+			$scope.snakeHead(lineHead, colHead, false);
+
+			// Adding the new item
+			$scope.moveOne(line, col, true, true);
+			$scope.snake.push($scope.gameBoard[line].cells[col]);
+		}
+	};
+
+	$scope.initSnake = function(){
+		for(i = 0 ; i < $scope.snake.length ; i++){
+			if(i == $scope.snake.length-1)
+				$scope.moveOne($scope.snake[i].line, $scope.snake[i].col, true, true);
+			else
+				$scope.moveOne($scope.snake[i].line, $scope.snake[i].col, true, false);
+		}
+	};
+	$scope.snakeHead = function(line, col, print){
+		if(print){
+			switch($scope.direction){
+				case 'n':
+					$scope.gameBoard[line].cells[col].head1 = "cell-head-eye-nw";
+					$scope.gameBoard[line].cells[col].head2 = "cell-head-eye-ne";
+					console.log('oui');
+					break;
+				case 'e':
+					$scope.gameBoard[line].cells[col].head1 = "cell-head-eye-se";
+					$scope.gameBoard[line].cells[col].head2 = "cell-head-eye-ne";
+					break;
+				case 's':
+					$scope.gameBoard[line].cells[col].head1 = "cell-head-eye-se";
+					$scope.gameBoard[line].cells[col].head2 = "cell-head-eye-sw";
+					break;
+				case 'w':
+					$scope.gameBoard[line].cells[col].head1 = "cell-head-eye-nw";
+					$scope.gameBoard[line].cells[col].head2 = "cell-head-eye-sw";
+					break;
+			}
+		}
+		else{
+			$scope.gameBoard[line].cells[col].head1 = "";
+			$scope.gameBoard[line].cells[col].head2 = "";
+		}
+	};
+
+	$scope.initSnake();
+
+	$interval(function(){
+		if($scope.isPlaying){
+			$scope.moveAll();
+			console.log($scope.isPlaying);
+			$scope.move = true;
+		}
+	}, $scope.speed);
 }]);
