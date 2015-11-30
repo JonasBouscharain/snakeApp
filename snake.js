@@ -23,6 +23,7 @@ app.service('GameBoard', function(){
 					line: countL,
 					col: countC,
 					used: false,
+					eatable: false,
 					style: "cell-unused"
 				};
 				countC++;
@@ -43,6 +44,11 @@ app.service('GameBoard', function(){
 app.controller('mainController', ['$scope', 'GameBoard', '$interval', '$timeout', '$document', function($scope, GameBoard, $interval, $timeout, $document) {
 	$scope.direction = "n";
 	$scope.windowSize = GameBoard.windowSize();
+	$scope.windowStyle = {
+		"width":$scope.windowSize[0]+"px",
+		"height":$scope.windowSize[1]+"px"
+	}
+
 	$scope.gameBoard = GameBoard.getGameBoard();
 	$scope.snake = [
 		$scope.gameBoard[10].cells[5],
@@ -50,7 +56,7 @@ app.controller('mainController', ['$scope', 'GameBoard', '$interval', '$timeout'
 		$scope.gameBoard[10].cells[7],
 		$scope.gameBoard[10].cells[8]
 	];
-	$scope.speed = 1000;
+	$scope.speed = 100;
 	$scope.move = true;
 	$scope.isPlaying = true;
 	
@@ -83,7 +89,7 @@ app.controller('mainController', ['$scope', 'GameBoard', '$interval', '$timeout'
 		}
 	};
 
-	$document.on('keyup', $scope.goTo);
+	$document.on('keydown', $scope.goTo);
 
 	$scope.moveOne = function(line, col, state, first){
 		$scope.gameBoard[line].cells[col].used = state;
@@ -123,7 +129,7 @@ app.controller('mainController', ['$scope', 'GameBoard', '$interval', '$timeout'
 			col -= 1;
 
 		// Inboard verification
-		if(line < 0 || line > $scope.gameBoard.length || col < 0 || col > $scope.gameBoard[0].cells.length){
+		if(line < 0 || line > $scope.gameBoard.length || col < 0 || col > $scope.gameBoard[0].cells.length || $scope.gameBoard[line].cells[col].used){
 			alert ("nop");
 			$scope.isPlaying = false;
 		}
@@ -176,6 +182,10 @@ app.controller('mainController', ['$scope', 'GameBoard', '$interval', '$timeout'
 			$scope.gameBoard[line].cells[col].head2 = "";
 		}
 	};
+
+	$scope.randomSpawn = function(){
+		Math.floor((Math.random() * 10) + 1);
+	}
 
 	$scope.initSnake();
 

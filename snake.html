@@ -10,7 +10,7 @@
 </head>
 <body ng-app="snakeApp">
 	<div id="main" ng-controller="mainController">
-		<div id="gameBoard" ng-style="windowSize">
+		<div id="gameBoard" ng-style="windowStyle">
 			<table>
 				<tr ng-repeat="line in gameBoard">
 					<td ng-repeat="cell in line.cells" ng-style="line.style">
