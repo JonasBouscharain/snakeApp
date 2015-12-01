@@ -41,6 +41,10 @@ td{
 	background-color: white;
 }
 
+.cell-eatable{
+	background-color: black;
+}
+
 .cell{
 	width: 100%;
 	height: 100%;
